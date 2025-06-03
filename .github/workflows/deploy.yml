@@ -12,23 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          
-      - name: Install Dependencies
+      - name: Validate Frontend Files
         run: |
           cd frontend
-          npm install
-          
-      - name: Build
-        run: |
-          cd frontend
-          npm run build
+          # Check if required files exist
+          if [ ! -f "index.html" ]; then echo "Error: index.html not found"; exit 1; fi
+          if [ ! -f "style.css" ]; then echo "Error: style.css not found"; exit 1; fi
+          if [ ! -f "script.js" ]; then echo "Error: script.js not found"; exit 1; fi
+          if [ ! -f "config.js" ]; then echo "Error: config.js not found"; exit 1; fi
+          echo "All required files are present"
           
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./frontend/dist 
+          publish_dir: ./frontend 

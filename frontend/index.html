@@ -16,7 +16,7 @@
             <h1>🎬 AI Script Generator</h1>
             <p>✨ Upload character profiles and story outlines, let AI create professional scripts for you ✨</p>
         </header>
-        
+
         <main>
             <section class="upload-section">
                 <div class="file-upload">
@@ -32,19 +32,19 @@
                         <div id="story-info" class="file-info"></div>
                     </div>
                 </div>
-                
+
                 <button id="generate-btn" class="generate-btn" disabled>
                     ✨ Start Creating Script
                 </button>
             </section>
-            
+
             <section id="progress-section" class="progress-section" style="display: none;">
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
                 <p class="progress-text">🤖 AI is creating your script, please wait...</p>
             </section>
-            
+
             <section id="result-section" class="result-section" style="display: none;">
                 <h2>✨ Script Generated Successfully!</h2>
                 <div class="result-info">
@@ -71,14 +71,14 @@
                     <button id="new-generation" class="secondary-btn">🔄 New Generation</button>
                 </div>
             </section>
-            
+
             <section id="error-section" class="error-section" style="display: none;">
                 <h2>❌ Error</h2>
                 <p id="error-message"></p>
                 <button id="retry-btn" class="secondary-btn">🔄 Retry</button>
             </section>
         </main>
-        
+
         <footer>
             <p>💡 Supports .txt format files • Suggested file size not exceed 10MB • Powered by DeepSeek AI</p>
         </footer>
