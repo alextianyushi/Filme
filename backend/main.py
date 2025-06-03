@@ -32,22 +32,17 @@ model = os.getenv("MODEL_NAME", "deepseek-chat")
 temperature = float(os.getenv("TEMPERATURE", "0.7"))
 client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
 
-# 专业剧本生成prompt
-SCRIPT_PROMPT = """你是一个专业的影视剧本创作专家。请根据提供的人物小传和故事大纲，创作一个标准的影视剧本。
+# 从文件读取剧本生成prompt
+def load_script_prompt():
+    prompt_path = Path("prompts/script_prompt.txt")
+    if prompt_path.exists():
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    else:
+        # 如果文件不存在，抛出错误
+        raise FileNotFoundError(f"Prompt文件不存在: {prompt_path}")
 
-剧本要求：
-1. 格式：标准的影视剧本格式
-   - 【场景】时间-地点-景别
-   - 【动作】具体的视觉动作描述  
-   - 【对话】角色名：台词内容
-2. 风格：现实主义，注重镜头感和可拍摄性
-3. 结构：起承转合完整，节奏紧凑
-4. 对话：自然流畅，符合人物性格
-5. 描述：具体的视觉动作，避免抽象表达
-6. 避免不必要的配角，聚焦主要人物
-
-请严格按照上述格式创作剧本。先生成前200字的剧本。
-"""
+SCRIPT_PROMPT = load_script_prompt()
 
 
 class GenerateRequest(BaseModel):
