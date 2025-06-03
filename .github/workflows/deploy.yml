@@ -32,13 +32,8 @@ jobs:
     - name: Prepare config file
       run: |
         cd frontend
-        # 从模板创建配置文件
-        cp config.example.js config.js
-        # 如果设置了TUNNEL_URL secrets，则替换API地址
-        if [ ! -z "${{ secrets.TUNNEL_URL }}" ]; then
-          sed -i "s|https://your-tunnel-url.trycloudflare.com|${{ secrets.TUNNEL_URL }}|g" config.js
-        fi
-        echo "Generated config.js:"
+        # 直接使用已有的config.js文件
+        echo "Using existing config.js:"
         cat config.js
       
     - name: Upload artifact
