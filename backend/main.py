@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import os
 import datetime
@@ -7,6 +8,7 @@ from pathlib import Path
 import shutil
 from openai import OpenAI
 from dotenv import load_dotenv
+import tiktoken
 
 # 加载环境变量
 load_dotenv()
@@ -26,11 +28,20 @@ app.add_middleware(
 UPLOADS_DIR = Path("uploads")
 UPLOADS_DIR.mkdir(exist_ok=True)
 
+# 允许下载的文件类型
+ALLOWED_FILES = {"character.txt", "story.txt", "generated.txt", "reasoning.txt"}
+
 # 初始化OpenAI客户端
 api_key = os.getenv("DEEPSEEK_API_KEY")
 model = os.getenv("MODEL_NAME", "deepseek-chat")
 temperature = float(os.getenv("TEMPERATURE", "0.7"))
 client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+
+# 初始化tiktoken编码器
+try:
+    encoding = tiktoken.get_encoding("cl100k_base")  # 通用编码器
+except:
+    encoding = None
 
 # 从文件读取剧本生成prompt
 def load_script_prompt():
@@ -44,6 +55,13 @@ def load_script_prompt():
 
 SCRIPT_PROMPT = load_script_prompt()
 
+def count_tokens(text: str) -> int:
+    """计算文本的token数量"""
+    if encoding:
+        return len(encoding.encode(text))
+    else:
+        # 如果tiktoken不可用，使用估算方式
+        return int(len(text) / 1.5)
 
 class GenerateRequest(BaseModel):
     session_id: str
@@ -135,6 +153,18 @@ async def generate_script(request: GenerateRequest):
 
 请基于以上人物小传和故事大纲，创作一个完整的影视剧本。"""
         
+        # 检查token数量
+        system_tokens = count_tokens(SCRIPT_PROMPT)
+        user_tokens = count_tokens(user_content)
+        estimated_tokens = system_tokens + user_tokens
+        
+        # 64K上下文限制检查
+        if estimated_tokens > 64000:
+            raise HTTPException(
+                status_code=413, 
+                detail=f"输入内容过长，估计使用{estimated_tokens}个tokens，超出64K上下文限制。请缩减人物小传或故事大纲的内容。"
+            )
+        
         # 调用AI生成剧本
         response = client.chat.completions.create(
             model=model,
@@ -143,26 +173,64 @@ async def generate_script(request: GenerateRequest):
                 {"role": "user", "content": user_content}
             ],
             temperature=temperature,
+            max_tokens=32000,  # 设置最大输出长度为32K
             stream=False
         )
         
         generated_script = response.choices[0].message.content
+        reasoning_content = getattr(response.choices[0].message, 'reasoning_content', None)
         
         # 保存生成的剧本
         script_path = session_dir / "generated.txt"
         with open(script_path, "w", encoding="utf-8") as f:
             f.write(generated_script)
         
+        # 保存推理过程（如果存在）
+        if reasoning_content:
+            reasoning_path = session_dir / "reasoning.txt"
+            with open(reasoning_path, "w", encoding="utf-8") as f:
+                f.write(reasoning_content)
+        
         return {
             "success": True,
             "session_id": request.session_id,
             "message": "剧本生成成功",
-            "script": generated_script,
-            "script_length": len(generated_script)
+            "script_length": len(generated_script),
+            "reasoning_length": len(reasoning_content) if reasoning_content else 0,
+            "estimated_input_tokens": estimated_tokens,
+            "has_reasoning": reasoning_content is not None,
+            "files_generated": ["generated.txt"] + (["reasoning.txt"] if reasoning_content else []),
+            "download_urls": {
+                "script": f"/download/{request.session_id}/generated.txt",
+                "reasoning": f"/download/{request.session_id}/reasoning.txt" if reasoning_content else None
+            }
         }
     
+    except HTTPException:
+        # 重新抛出HTTP异常
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"剧本生成失败: {str(e)}")
+
+
+@app.get("/download/{session_id}/{file_name}")
+async def download_file(session_id: str, file_name: str):
+    session_dir = UPLOADS_DIR / session_id
+    
+    # 检查session目录是否存在
+    if not session_dir.exists():
+        raise HTTPException(status_code=404, detail="Session ID不存在")
+    
+    # 检查文件是否存在
+    if file_name not in ALLOWED_FILES:
+        raise HTTPException(status_code=400, detail="不允许下载的文件类型")
+    
+    file_path = session_dir / file_name
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="文件不存在")
+    
+    return FileResponse(file_path)
 
 
 if __name__ == "__main__":
