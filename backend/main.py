@@ -1,9 +1,15 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import os
 import datetime
 from pathlib import Path
 import shutil
+from openai import OpenAI
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 app = FastAPI(title="AI剧本生成器", version="1.0.0")
 
@@ -19,6 +25,33 @@ app.add_middleware(
 # 创建uploads目录
 UPLOADS_DIR = Path("uploads")
 UPLOADS_DIR.mkdir(exist_ok=True)
+
+# 初始化OpenAI客户端
+api_key = os.getenv("DEEPSEEK_API_KEY")
+model = os.getenv("MODEL_NAME", "deepseek-chat")
+temperature = float(os.getenv("TEMPERATURE", "0.7"))
+client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+
+# 专业剧本生成prompt
+SCRIPT_PROMPT = """你是一个专业的影视剧本创作专家。请根据提供的人物小传和故事大纲，创作一个标准的影视剧本。
+
+剧本要求：
+1. 格式：标准的影视剧本格式
+   - 【场景】时间-地点-景别
+   - 【动作】具体的视觉动作描述  
+   - 【对话】角色名：台词内容
+2. 风格：现实主义，注重镜头感和可拍摄性
+3. 结构：起承转合完整，节奏紧凑
+4. 对话：自然流畅，符合人物性格
+5. 描述：具体的视觉动作，避免抽象表达
+6. 避免不必要的配角，聚焦主要人物
+
+请严格按照上述格式创作剧本。先生成前200字的剧本。
+"""
+
+
+class GenerateRequest(BaseModel):
+    session_id: str
 
 
 @app.get("/")
@@ -73,6 +106,68 @@ async def upload_files(
         if session_dir.exists():
             shutil.rmtree(session_dir)
         raise HTTPException(status_code=500, detail=f"文件保存失败: {str(e)}")
+
+
+@app.post("/generate")
+async def generate_script(request: GenerateRequest):
+    session_dir = UPLOADS_DIR / request.session_id
+    
+    # 检查session目录是否存在
+    if not session_dir.exists():
+        raise HTTPException(status_code=404, detail="Session ID不存在")
+    
+    character_path = session_dir / "character.txt"
+    story_path = session_dir / "story.txt"
+    
+    # 检查文件是否存在
+    if not character_path.exists() or not story_path.exists():
+        raise HTTPException(status_code=404, detail="上传的文件不完整")
+    
+    try:
+        # 读取人物小传和故事大纲
+        with open(character_path, "r", encoding="utf-8") as f:
+            character_content = f.read().strip()
+        
+        with open(story_path, "r", encoding="utf-8") as f:
+            story_content = f.read().strip()
+        
+        # 构建用户输入内容
+        user_content = f"""人物小传：
+{character_content}
+
+故事大纲：
+{story_content}
+
+请基于以上人物小传和故事大纲，创作一个完整的影视剧本。"""
+        
+        # 调用AI生成剧本
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": SCRIPT_PROMPT},
+                {"role": "user", "content": user_content}
+            ],
+            temperature=temperature,
+            stream=False
+        )
+        
+        generated_script = response.choices[0].message.content
+        
+        # 保存生成的剧本
+        script_path = session_dir / "generated.txt"
+        with open(script_path, "w", encoding="utf-8") as f:
+            f.write(generated_script)
+        
+        return {
+            "success": True,
+            "session_id": request.session_id,
+            "message": "剧本生成成功",
+            "script": generated_script,
+            "script_length": len(generated_script)
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"剧本生成失败: {str(e)}")
 
 
 if __name__ == "__main__":
