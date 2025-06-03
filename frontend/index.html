@@ -1,100 +1,87 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI剧本生成器 - 智能创作助手</title>
+    <title>AI Script Generator - Intelligent Writing Assistant</title>
     <link rel="stylesheet" href="style.css">
     
-    <!-- API配置 -->
+    <!-- API Configuration -->
     <script src="config.js"></script>
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎬 AI剧本生成器</h1>
-            <p>✨ 上传人物小传和故事大纲，让AI为您创作专业剧本 ✨</p>
+            <h1>🎬 AI Script Generator</h1>
+            <p>✨ Upload character profiles and story outlines, let AI create professional scripts for you ✨</p>
         </header>
-
+        
         <main>
-            <!-- 文件上传区域 -->
             <section class="upload-section">
                 <div class="file-upload">
                     <div class="upload-item">
-                        <label for="character-file">👤 人物小传 (.txt)</label>
-                        <input type="file" id="character-file" accept=".txt" required>
-                        <div class="file-info" id="character-info"></div>
+                        <label for="character-file">👤 Character Profile</label>
+                        <input type="file" id="character-file" accept=".txt">
+                        <div id="character-info" class="file-info"></div>
                     </div>
                     
                     <div class="upload-item">
-                        <label for="story-file">📚 故事大纲 (.txt)</label>
-                        <input type="file" id="story-file" accept=".txt" required>
-                        <div class="file-info" id="story-info"></div>
+                        <label for="story-file">📚 Story Outline</label>
+                        <input type="file" id="story-file" accept=".txt">
+                        <div id="story-info" class="file-info"></div>
                     </div>
                 </div>
-
+                
                 <button id="generate-btn" class="generate-btn" disabled>
-                    ✨ 开始创作剧本
+                    ✨ Start Creating Script
                 </button>
             </section>
-
-            <!-- 进度指示 -->
-            <section class="progress-section" id="progress-section" style="display: none;">
+            
+            <section id="progress-section" class="progress-section" style="display: none;">
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
-                <p class="progress-text">🤖 AI正在创作您的剧本，请稍候...</p>
+                <p class="progress-text">🤖 AI is creating your script, please wait...</p>
             </section>
-
-            <!-- 结果显示区域 -->
-            <section class="result-section" id="result-section" style="display: none;">
-                <h2>🎉 剧本创作完成！</h2>
-                
+            
+            <section id="result-section" class="result-section" style="display: none;">
+                <h2>✨ Script Generated Successfully!</h2>
                 <div class="result-info">
                     <div class="info-item">
-                        <span class="label">📋 Session ID:</span>
+                        <span class="label">Session ID:</span>
                         <span id="session-id"></span>
                     </div>
                     <div class="info-item">
-                        <span class="label">📝 剧本长度:</span>
-                        <span id="script-length"></span> 字
+                        <span class="label">Script Length:</span>
+                        <span id="script-length"></span> characters
                     </div>
                     <div class="info-item">
-                        <span class="label">🔢 输入Token:</span>
+                        <span class="label">Input Tokens:</span>
                         <span id="input-tokens"></span>
                     </div>
                     <div class="info-item" id="reasoning-info" style="display: none;">
-                        <span class="label">🧠 推理过程:</span>
-                        <span id="reasoning-length"></span> 字
+                        <span class="label">Reasoning Length:</span>
+                        <span id="reasoning-length"></span> characters
                     </div>
                 </div>
-
                 <div class="download-section">
-                    <button id="download-script" class="download-btn">
-                        📥 下载剧本
-                    </button>
-                    <button id="download-reasoning" class="download-btn" style="display: none;">
-                        🧠 下载推理过程
-                    </button>
-                    <button id="new-generation" class="secondary-btn">
-                        🔄 创作新剧本
-                    </button>
+                    <button id="download-script" class="download-btn">📥 Download Script</button>
+                    <button id="download-reasoning" class="download-btn" style="display: none;">📥 Download Reasoning</button>
+                    <button id="new-generation" class="secondary-btn">🔄 New Generation</button>
                 </div>
             </section>
-
-            <!-- 错误提示 -->
-            <section class="error-section" id="error-section" style="display: none;">
-                <h2>⚠️ 创作失败</h2>
+            
+            <section id="error-section" class="error-section" style="display: none;">
+                <h2>❌ Error</h2>
                 <p id="error-message"></p>
-                <button id="retry-btn" class="secondary-btn">🔄 重试</button>
+                <button id="retry-btn" class="secondary-btn">🔄 Retry</button>
             </section>
         </main>
-
+        
         <footer>
-            <p>💡 支持.txt格式文件 • 建议文件大小不超过10MB • 由DeepSeek AI驱动</p>
+            <p>💡 Supports .txt format files • Suggested file size not exceed 10MB • Powered by DeepSeek AI</p>
         </footer>
     </div>
-
-    <script src="script.js"></script>
 </body>
 </html> 

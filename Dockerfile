@@ -1,33 +1,33 @@
 FROM python:3.13-slim
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 安装系统依赖
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装uv（Python包管理器）
+# Install uv (Python package manager)
 RUN pip install uv
 
-# 复制项目文件
+# Copy project files
 COPY backend/pyproject.toml backend/uv.lock ./
 COPY backend/prompts/ ./prompts/
 COPY backend/main.py ./
 
-# 安装Python依赖
+# Install Python dependencies
 RUN uv sync --frozen
 
-# 创建uploads目录
+# Create uploads directory
 RUN mkdir -p uploads
 
-# 暴露端口
+# Expose port
 EXPOSE 8000
 
-# 设置环境变量
+# Set environment variables
 ENV PYTHONPATH=/app
 ENV PORT=8000
 
-# 启动应用
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
+# Start application
+CMD uv run uvicorn main:app --host 0.0.0.0 --port $PORT 

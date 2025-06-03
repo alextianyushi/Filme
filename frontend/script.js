@@ -1,7 +1,7 @@
-// API配置
+// API configuration
 const API_BASE_URL = window.CONFIG?.BACKEND_URL || 'http://localhost:8000';
 
-// DOM元素
+// DOM elements
 const characterFile = document.getElementById('character-file');
 const storyFile = document.getElementById('story-file');
 const generateBtn = document.getElementById('generate-btn');
@@ -9,26 +9,26 @@ const progressSection = document.getElementById('progress-section');
 const resultSection = document.getElementById('result-section');
 const errorSection = document.getElementById('error-section');
 
-// 当前session信息
+// Current session information
 let currentSession = null;
 
-// 初始化
+// Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // 文件选择事件
+    // File selection events
     characterFile.addEventListener('change', handleFileSelect);
     storyFile.addEventListener('change', handleFileSelect);
     
-    // 生成按钮事件
+    // Generate button event
     generateBtn.addEventListener('click', generateScript);
     
-    // 其他按钮事件
+    // Other button events
     document.getElementById('new-generation').addEventListener('click', resetForm);
     document.getElementById('retry-btn').addEventListener('click', generateScript);
     document.getElementById('download-script').addEventListener('click', () => downloadFile('generated.txt'));
     document.getElementById('download-reasoning').addEventListener('click', () => downloadFile('reasoning.txt'));
 });
 
-// 处理文件选择
+// Handle file selection
 function handleFileSelect(event) {
     const file = event.target.files[0];
     const isCharacter = event.target.id === 'character-file';
@@ -36,21 +36,21 @@ function handleFileSelect(event) {
     const uploadItem = event.target.closest('.upload-item');
     
     if (file) {
-        // 验证文件类型
+        // Validate file type
         if (!file.name.endsWith('.txt')) {
-            showError('请选择.txt格式的文件');
+            showError('Please select a .txt format file');
             event.target.value = '';
             return;
         }
         
-        // 验证文件大小 (10MB)
+        // Validate file size (10MB)
         if (file.size > 10 * 1024 * 1024) {
-            showError('文件大小不能超过10MB');
+            showError('File size cannot exceed 10MB');
             event.target.value = '';
             return;
         }
         
-        // 显示文件信息
+        // Display file information
         const sizeKB = (file.size / 1024).toFixed(1);
         infoElement.textContent = `✅ ${file.name} (${sizeKB} KB)`;
         uploadItem.classList.add('has-file');
@@ -59,24 +59,24 @@ function handleFileSelect(event) {
         uploadItem.classList.remove('has-file');
     }
     
-    // 检查是否可以生成
+    // Check if generation is possible
     checkCanGenerate();
 }
 
-// 检查是否可以生成剧本
+// Check if script generation is possible
 function checkCanGenerate() {
     const hasCharacterFile = characterFile.files.length > 0;
     const hasStoryFile = storyFile.files.length > 0;
     generateBtn.disabled = !(hasCharacterFile && hasStoryFile);
 }
 
-// 生成剧本
+// Generate script
 async function generateScript() {
     try {
         hideAllSections();
         showProgress();
         
-        // 第一步：上传文件
+        // Step 1: Upload files
         const formData = new FormData();
         formData.append('character_file', characterFile.files[0]);
         formData.append('story_file', storyFile.files[0]);
@@ -88,13 +88,13 @@ async function generateScript() {
         
         if (!uploadResponse.ok) {
             const error = await uploadResponse.json();
-            throw new Error(error.detail || '文件上传失败');
+            throw new Error(error.detail || 'File upload failed');
         }
         
         const uploadResult = await uploadResponse.json();
         currentSession = uploadResult.session_id;
         
-        // 第二步：生成剧本
+        // Step 2: Generate script
         const generateResponse = await fetch(`${API_BASE_URL}/generate`, {
             method: 'POST',
             headers: {
@@ -107,12 +107,12 @@ async function generateScript() {
         
         if (!generateResponse.ok) {
             const error = await generateResponse.json();
-            throw new Error(error.detail || '剧本生成失败');
+            throw new Error(error.detail || 'Script generation failed');
         }
         
         const generateResult = await generateResponse.json();
         
-        // 显示结果
+        // Display results
         hideProgress();
         showResult(generateResult);
         
@@ -122,25 +122,25 @@ async function generateScript() {
     }
 }
 
-// 显示进度
+// Show progress
 function showProgress() {
     progressSection.style.display = 'block';
     progressSection.classList.add('fade-in');
 }
 
-// 隐藏进度
+// Hide progress
 function hideProgress() {
     progressSection.style.display = 'none';
 }
 
-// 显示结果
+// Show results
 function showResult(result) {
-    // 更新结果信息
+    // Update result information
     document.getElementById('session-id').textContent = result.session_id;
     document.getElementById('script-length').textContent = result.script_length.toLocaleString();
     document.getElementById('input-tokens').textContent = result.estimated_input_tokens.toLocaleString();
     
-    // 推理过程信息
+    // Reasoning process information
     const reasoningInfo = document.getElementById('reasoning-info');
     const downloadReasoning = document.getElementById('download-reasoning');
     
@@ -153,13 +153,13 @@ function showResult(result) {
         downloadReasoning.style.display = 'none';
     }
     
-    // 显示结果区域
+    // Display result section
     resultSection.style.display = 'block';
     resultSection.classList.add('fade-in');
     resultSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// 显示错误
+// Show error
 function showError(message) {
     document.getElementById('error-message').textContent = message;
     errorSection.style.display = 'block';
@@ -167,17 +167,17 @@ function showError(message) {
     errorSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// 隐藏所有结果区域
+// Hide all result sections
 function hideAllSections() {
     resultSection.style.display = 'none';
     errorSection.style.display = 'none';
     progressSection.style.display = 'none';
 }
 
-// 下载文件
+// Download file
 async function downloadFile(filename) {
     if (!currentSession) {
-        showError('没有可下载的文件');
+        showError('No file available for download');
         return;
     }
     
@@ -185,7 +185,7 @@ async function downloadFile(filename) {
         const response = await fetch(`${API_BASE_URL}/download/${currentSession}/${filename}`);
         
         if (!response.ok) {
-            throw new Error('下载失败');
+            throw new Error('Download failed');
         }
         
         const blob = await response.blob();
@@ -199,39 +199,39 @@ async function downloadFile(filename) {
         document.body.removeChild(a);
         
     } catch (error) {
-        showError('下载失败：' + error.message);
+        showError('Download failed: ' + error.message);
     }
 }
 
-// 重置表单
+// Reset form
 function resetForm() {
-    // 清空文件输入
+    // Clear file inputs
     characterFile.value = '';
     storyFile.value = '';
     
-    // 清空文件信息
+    // Clear file information
     document.getElementById('character-info').textContent = '';
     document.getElementById('story-info').textContent = '';
     
-    // 移除样式
+    // Remove styles
     document.querySelectorAll('.upload-item').forEach(item => {
         item.classList.remove('has-file');
     });
     
-    // 隐藏结果区域
+    // Hide result sections
     hideAllSections();
     
-    // 重置按钮状态
+    // Reset button state
     generateBtn.disabled = true;
     
-    // 清空session
+    // Clear session
     currentSession = null;
     
-    // 滚动到顶部
+    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// 工具函数：格式化文件大小
+// Utility function: Format file size
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;

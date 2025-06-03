@@ -1,147 +1,120 @@
-# AI剧本生成器 MVP
+# AI Script Generator MVP
 
-## 产品定位
-输入人物小传和故事大纲，AI生成专业影视剧本。
+## Product Positioning
+Input character profiles and story outlines to generate professional film scripts with AI.
 
-## 核心功能
-1. **文件上传** - 上传人物小传和故事大纲（仅支持.txt格式）
-2. **AI生成** - 基于DeepSeek API生成标准剧本格式
-3. **结果输出** - 在线预览、下载txt文件、复制文本
+## Core Features
+1. **File Upload** - Upload character profiles and story outlines (supports .txt format only)
+2. **AI Generation** - Generate standard script format based on DeepSeek API
+3. **Result Output** - Online preview, download txt files, copy text
 
-## 用户界面
+## User Interface
 ```
-📝 人物小传文件上传 (.txt)
-📖 故事大纲文件上传 (.txt)
-🚀 生成专业剧本按钮
-📄 结果显示和下载 (.txt)
+📝 Character profile file upload (.txt)
+📖 Story outline file upload (.txt)
+🚀 Generate professional script button
+📄 Result display and download (.txt)
 ```
 
-## 快速启动
+## Quick Start
 
-### 前置要求
+### Prerequisites
 - Python 3.13+
 - DeepSeek API Key
-- 现代浏览器
+- Modern browser
 
-### 后端启动
+### Backend Setup
 
-1. **进入后端目录**
+1. **Enter backend directory**
 ```bash
 cd backend
 ```
 
-2. **安装依赖**
+2. **Install dependencies**
 ```bash
-# 使用 uv （推荐）
+# Using uv (recommended)
 uv sync
-
-# 或使用 pip
-pip install -r requirements.txt
 ```
 
-3. **配置环境变量**
+3. **Configure environment variables**
 ```bash
-# 创建 .env 文件
+# Create .env file
 cp .env.example .env
 
-# 编辑 .env 文件，添加你的API密钥
+# Edit .env file, add your API key
 DEEPSEEK_API_KEY=your_deepseek_api_key_here
-MODEL_NAME=deepseek-chat
-TEMPERATURE=0.7
+MODEL_NAME=deepseek-reasoner
+TEMPERATURE=1.3
 FRONT_END_URL=http://localhost:3000
 ```
 
-4. **启动后端服务器**
+4. **Start backend server**
 ```bash
-# 开发模式
+# Development mode
 uv run main.py
 ```
 
-后端将在 `http://localhost:8000` 启动
+Backend will start at `http://localhost:8000`
 
-### 前端启动
+### Frontend Setup
 
-1. **进入前端目录**
+1. **Enter frontend directory**
 ```bash
 cd frontend
 ```
 
-2. **配置API地址**
+2. **Configure API address**
 ```bash
-# 复制配置文件
+# Copy config file
 cp config.example.js config.js
 
-# 编辑 config.js，设置后端地址
+# Edit config.js, set backend address
 window.CONFIG = {
-    BACKEND_URL: 'http://localhost:8000'  // 本地开发
-    // 或者使用你的后端地址
+    BACKEND_URL: 'http://localhost:8000'  // Local development
+    // Or use your backend address
 };
 ```
 
-3. **启动前端服务器**
+3. **Start frontend server**
 ```bash
-# 使用 Python 内置服务器
+# Using Python built-in server
 python3 -m http.server 3000
 
-# 或直接用浏览器打开 index.html
+# Or directly open index.html in browser
 open index.html
 ```
 
-前端将在 `http://localhost:3000` 启动
+Frontend will start at `http://localhost:3000`
 
-## 技术架构
+## Technical Architecture
 
-### 前端
+### Frontend
 - HTML + CSS + JavaScript
-- 文件上传组件
-- 响应式设计
+- File upload component
+- Responsive design
 
-### 后端
+### Backend
 - FastAPI
-- 3个API接口：
-  - `POST /upload` - 文件上传
-  - `POST /generate` - 剧本生成
-  - `GET /download/{session_id}/{filename}` - 下载文件
+- 3 API endpoints:
+  - `POST /upload` - File upload
+  - `POST /generate` - Script generation
+  - `GET /download/{session_id}/{filename}` - Download files
 
-### AI集成
+### AI Integration
 - DeepSeek API
-- 标准剧本格式prompt
+- Standard script format prompts
 
-### 文件格式
-- 输入：仅支持.txt纯文本文件
-- 输出：.txt纯文本格式
+### File Formats
+- Input: .txt plain text files only
+- Output: .txt plain text format
 
-## 用户流程
-1. 准备人物小传.txt和故事大纲.txt
-2. 上传两个文件
-3. 点击生成剧本
-4. 等待AI生成（通常1-3分钟）
-5. 下载结果文件
+## User Workflow
+1. Prepare character profile.txt and story outline.txt
+2. Upload both files
+3. Click generate script
+4. Wait for AI generation (usually 1-3 minutes)
+5. Download result files
 
-## 部署方案
-- 前端：GitHub Pages
-- 后端：
-
-## 故障排除
-
-### 常见问题
-
-1. **后端启动失败**
-   - 检查Python版本是否为3.13+
-   - 确认所有依赖已正确安装
-   - 检查.env文件是否存在且配置正确
-
-2. **前端无法连接后端**
-   - 检查config.js中的BACKEND_URL是否正确
-   - 确认后端服务正在运行
-   - 检查CORS设置
-
-3. **文件上传失败**
-   - 确认文件格式为.txt
-   - 检查文件大小不超过10MB
-   - 确认DeepSeek API密钥有效
-
-## MVP验证目标
-- 需求验证：用户是否需要AI剧本生成
-- 质量验证：生成剧本是否可用
-- 流程验证：操作流程是否顺畅
+## Deployment
+- Frontend: GitHub Pages
+- Backend: Fly.io

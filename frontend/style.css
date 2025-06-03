@@ -1,3 +1,4 @@
+/* Base styles */
 * {
     margin: 0;
     padding: 0;
@@ -419,7 +420,7 @@ footer {
     font-weight: 500;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
     body {
         padding: 12px;
@@ -458,7 +459,7 @@ footer {
     }
 }
 
-/* 动画效果 */
+/* Animation effects */
 .fade-in {
     animation: fadeInUp 0.5s ease-out forwards;
 }
@@ -474,7 +475,7 @@ footer {
     }
 }
 
-/* 专业感加载动画 */
+/* Professional loading animation */
 .loading-dots {
     display: inline-block;
     width: 20px;
