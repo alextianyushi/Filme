@@ -13,12 +13,14 @@ import tiktoken
 # 加载环境变量
 load_dotenv()
 
+front_end_url = os.getenv("FRONT_END_URL", "http://localhost:3000")
+
 app = FastAPI(title="AI剧本生成器", version="1.0.0")
 
 # 添加CORS中间件，允许前端跨域访问
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[front_end_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

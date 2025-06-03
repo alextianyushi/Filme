@@ -1,0 +1,6 @@
+# 排除真实配置文件
+config.js
+
+# 临时文件
+*.tmp
+.DS_Store 

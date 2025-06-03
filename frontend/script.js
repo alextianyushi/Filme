@@ -1,5 +1,5 @@
 // API配置
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = window.CONFIG?.BACKEND_URL || 'http://localhost:8000';
 
 // DOM元素
 const characterFile = document.getElementById('character-file');

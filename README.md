@@ -28,6 +28,7 @@
 - 2个API接口：
   - `POST /upload` - 文件上传
   - `POST /generate` - 剧本生成
+  - `GET /download` - 下载文件
 
 ### AI集成
 - DeepSeek API
@@ -42,10 +43,10 @@
 2. 上传两个文件
 3. 点击生成剧本
 4. 等待2分钟
-5. 下载或复制结果
+5. 下载结果
 
 ## 部署方案
-- 前端：Vercel/Netlify
+- 前端：Githubpage
 - 后端：本地运行 + cloudflared tunnel
 
 ## MVP验证目标
